@@ -60,10 +60,11 @@ def nms(boxes, overlap_threshold=0.5, mode='union'):
             overlap = inter/(area[i] + area[ids[:last]] - inter)
 
         # delete all boxes where overlap is too big
-        ids = np.delete(
-            ids,
-            np.concatenate([[last], np.where(overlap > overlap_threshold)[0]])
-        )
+        # ids = np.delete(
+        #     ids,
+        #     np.concatenate([[last], np.where(overlap > overlap_threshold)[0]])
+        # )
+        ids = ids[np.where(overlap <= overlap_threshold)]
 
     return pick
 
@@ -209,6 +210,8 @@ def correct_bboxes(bboxes, width, height):
 
     # if box's top left corner is too far left
     ind = np.where(x < 0.0)[0]
+    # the x coordinate with respect to the cutouts
+    # when its value is 0 in image
     dx[ind] = 0.0 - x[ind]
     x[ind] = 0.0
 

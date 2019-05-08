@@ -76,8 +76,9 @@ def detect_faces(image, min_face_size=20.0,
     # STAGE 2
 
     img_boxes = get_image_boxes(bounding_boxes, image, size=24)
-    img_boxes = Variable(torch.FloatTensor(img_boxes), volatile=True)
-    output = rnet(img_boxes)
+    with torch.no_grad():
+        img_boxes = Variable(torch.FloatTensor(img_boxes))
+        output = rnet(img_boxes)
     offsets = output[0].data.numpy()  # shape [n_boxes, 4]
     probs = output[1].data.numpy()  # shape [n_boxes, 2]
 
@@ -97,8 +98,9 @@ def detect_faces(image, min_face_size=20.0,
     img_boxes = get_image_boxes(bounding_boxes, image, size=48)
     if len(img_boxes) == 0: 
         return [], []
-    img_boxes = Variable(torch.FloatTensor(img_boxes), volatile=True)
-    output = onet(img_boxes)
+    with torch.no_grad():
+        img_boxes = Variable(torch.FloatTensor(img_boxes))
+        output = onet(img_boxes)
     landmarks = output[0].data.numpy()  # shape [n_boxes, 10]
     offsets = output[1].data.numpy()  # shape [n_boxes, 4]
     probs = output[2].data.numpy()  # shape [n_boxes, 2]
@@ -119,6 +121,7 @@ def detect_faces(image, min_face_size=20.0,
     bounding_boxes = calibrate_box(bounding_boxes, offsets)
     keep = nms(bounding_boxes, nms_thresholds[2], mode='min')
     bounding_boxes = bounding_boxes[keep]
+#     bounding_boxes[:, 0:4] = np.round(bounding_boxes[:, 0:4])
     landmarks = landmarks[keep]
 
     return bounding_boxes, landmarks

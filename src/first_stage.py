@@ -28,9 +28,9 @@ def run_first_stage(image, net, scale, threshold):
     sw, sh = math.ceil(width*scale), math.ceil(height*scale)
     img = image.resize((sw, sh), Image.BILINEAR)
     img = np.asarray(img, 'float32')
-
-    img = Variable(torch.FloatTensor(_preprocess(img)), volatile=True)
-    output = net(img)
+    with torch.no_grad():
+        img = Variable(torch.FloatTensor(_preprocess(img)))
+        output = net(img)
     probs = output[1].data.numpy()[0, 1, :, :]
     offsets = output[0].data.numpy()
     # probs: probability of a face at each sliding window
